@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Firebase Token Generator</title>
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js';
+        import { getAuth, signInWithEmailAndPassword, signOut } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js';
+
+        // Memuat konfigurasi Firebase dari file JSON
+        async function loadFirebaseConfig() {
+            const response = await fetch('firebase/firebaseConfig.json');
+            if (!response.ok) {
+                throw new Error('Gagal memuat konfigurasi Firebase');
+            }
+            return await response.json();
+        }
+
+        // Inisialisasi Firebase setelah konfigurasi dimuat
+        async function initializeFirebase() {
+            try {
+                const firebaseConfig = await loadFirebaseConfig();
+                const app = initializeApp(firebaseConfig);
+                const auth = getAuth(app);
+
+                // Sign In
+                window.signIn = async () => {
+                    try {
+                        const email = prompt("Masukkan email:");
+                        const password = prompt("Masukkan password:");
+
+                        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                        const user = userCredential.user;
+
+                        // Dapatkan token
+                        const token = await user.getIdToken();
+
+                        // Tampilkan token
+                        document.getElementById('token-display').innerHTML = `
+                            <h3>Token:</h3>
+                            <textarea rows="4" cols="50" readonly>${token}</textarea>
+                            <p>User: ${user.email}</p>
+                        `;
+
+                        console.log("Token berhasil didapatkan:", token);
+                    } catch (error) {
+                        console.error("Error saat sign in:", error);
+                        alert("Gagal sign in: " + error.message);
+                    }
+                };
+
+                // Sign Out
+                window.signOut = async () => {
+                    try {
+                        await signOut(auth);
+                        document.getElementById('token-display').innerHTML = "Anda telah logout";
+                    } catch (error) {
+                        console.error("Error saat logout:", error);
+                    }
+                };
+
+            } catch (error) {
+                console.error("Gagal menginisialisasi Firebase:", error);
+                alert("Gagal menginisialisasi Firebase: " + error.message);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', initializeFirebase);
+
+    </script>
+</head>
+<body>
+    <h2>Firebase Authentication</h2>
+    <button onclick="signIn()">Sign In</button>
+    <button onclick="signOut()">Sign Out</button>
+    <div id="token-display"></div>
+</body>
+</html>

@@ -1,0 +1,22 @@
+# Ignore Python bytecode files
+__pycache__/
+
+# Virtual environment folder
+bioface_env/
+
+# Ignore environment configuration files
+.env
+env.yaml
+
+# Firebase config
+src/firebase/firebaseConfig.json
+src/firebase/firebaseService.json
+
+# Data face_disease
+src/disease_info.json
+
+# Dataset
+dataset/
+
+# Model
+upload_model/model.h5
